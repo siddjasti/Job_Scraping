@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Job Scraper</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".description-button").click(function() {
+                var desc = $(this).data("desc");
+                $("#description-modal .modal-body").text(desc);
+                $("#description-modal").css("display", "block"); 
+            });
+
+            $("#description-modal .close").click(function() {
+                $("#description-modal").css("display", "none"); 
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Job Scraper</h1> 
+        <form method="post">
+            <div class="input-container">
+                <label for="keyword">Keyword:</label>
+                <input type="text" id="keyword" name="keyword" placeholder="Enter keyword">
+            </div>
+            <div class="input-container">
+                <label for="location">Location:</label>
+                <input type="text" id="location" name="location" placeholder="Enter location">
+            </div>
+            <div class="input-container">
+                <label for="distance">Distance: (0, 5, 10, 25, 50 miles)</label>
+                <input type="number" id="distance" name="distance" min="0" max="50" placeholder="0">
+            </div>
+            <div class="input-container toggle-container">
+                <label for="is_remote">Remote?:</label>
+                <label class="switch">
+                    <input type="checkbox" id="is_remote" name="is_remote">
+                    <span class="slider round"></span>
+                </label>
+            </div>
+            <input type="submit" value="Submit">
+        </form>
+        
+        {% if df_html %}
+        <div class="data-table">
+            <h2>Scraped Data</h2>
+            {{ df_html|safe }}
+        </div>
+        {% endif %}
+    </div>
+
+    <div id="description-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div class="modal-body"></div>
+        </div>
+    </div>
+</body>
+</html>
