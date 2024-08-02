@@ -5,7 +5,7 @@ This repository hosts a Flask-based web application designed to scrape job listi
 ## Features
 
 - Web interface for entering job search parameters.
-- Scrapes job listings from LinkedIn and Indeed.
+- Scrapes job listings from LinkedIn, Google Jobs, and Indeed.
 - Displays scraped data in a user-friendly web format with clickable links and expandable descriptions.
 
 ## Getting Started
@@ -40,7 +40,7 @@ The main Flask application file. It initializes the Flask app and handles routin
 
 ### `index.html`
 
-This HTML template serves as the front-end of the application. It provides a form where users can enter job search criteria such as keyword, location, distance, and remote work preference. The results are presented in a table format with links to apply directly and buttons to view job descriptions in modal windows.
+This HTML template serves as the front-end of the application. It provides a form where users can enter job search criteria such as keyword, location, distance, and remote work preference. The results are presented in a table format with links to apply directly and buttons to view job descriptions in pop-up windows.
 
 ### `scraper.py`
 
