@@ -48,10 +48,6 @@ def google_jobs_api(keyword: str, location: str, df: pd.DataFrame, max_posts: in
             new_row = pd.DataFrame([{"job_title": job_title, "position_type": position_type, "company_name": company_name, "location": job_location, "pay": job_pay, "apply_link": job_link, "role_desc": job_description, "source": "Indeed"}])
             df = pd.concat([df, new_row], ignore_index=True)
             
-    
-        
-    
-
 def scrape_indeed(keyword: str, location: str, distance: int, is_remote: bool, df: pd.DataFrame, page: Page, max_posts: int):
     keyword = keyword.replace(" ", "+")
     location = location.replace(",", "%2C").replace(" ", "+")
@@ -207,7 +203,7 @@ def scrape_zip_recruiter(keyword: str, location: str, distance: int, is_remote: 
     page.mouse.click(x = 0, y = 10)
     time.sleep(0.3)
     
-    while total_scraped <= max_posts:
+    while total_scraped < max_posts:
         num_jobs = page.query_selector_all("div.job_result_wrapper")
         count = 0
         for current_job in num_jobs:
@@ -240,9 +236,13 @@ def scrape_zip_recruiter(keyword: str, location: str, distance: int, is_remote: 
                     job_pay = "none specified"
                     position_type = "Unknown"
 
+                    for elem in p_elements:
+                        elem_text = elem.inner_text()
+                        
                     if len(p_elements) == 1:
                         position_type = p_elements[0].inner_text()
                     elif len(p_elements) == 2:
+                        
                         job_pay = p_elements[0].inner_text()
                         position_type = p_elements[1].inner_text()
 

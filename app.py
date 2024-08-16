@@ -32,7 +32,7 @@ def index():
             df = scrape_zip_recruiter(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
         
         df['apply_link'] = df['apply_link'].apply(lambda x: f'<a href="{x}" target="_blank" class="apply-link">Apply</a>')
-        df['role_desc'] = df['role_desc'].apply(lambda x: f'<button class="description-button" data-desc="{x}">Description</button>')
+        df['role_desc'] = df['role_desc'].apply(lambda x: f'<button class="description-button" data-desc="{x.replace("\n", "\\n")}">Description</button>')
         df.columns = [col.replace('_', ' ').upper() for col in df.columns]
 
         df_html = df.to_html(escape=False, index=False)
