@@ -3,7 +3,7 @@ from playwright.sync_api import TimeoutError, Page
 import random
 import time 
 import pandas as pd
-#from serpapi import GoogleSearch
+from pprint import pprint
 import requests
 
 USER_AGENT_STRINGS = [
@@ -13,14 +13,22 @@ USER_AGENT_STRINGS = [
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36",
 ]
 
-def google_jobs_api(keyword: str, location: str, df: pd.DataFrame, max_posts: int):
+def google_jobs_api(keyword: str, location: str, distance: int, is_remote: bool, df: pd.DataFrame, max_posts: int):
     keyword = keyword.replace(" ", "+")
     location = location.replace(",", "%2C").replace(" ", "+")
     params = {
         "api_key": "SECRET_KEY"
     }
-    
+
     url = f"https://serpapi.com/search.json?engine=google_jobs&q={keyword}+{location}&hl=en"
+
+    if is_remote:
+        url += "&ltype=1"
+
+    if distance > 0:
+        url += f"&lrad={distance}"
+
+    
     results = requests.get(url, params=params).json()
     added_jobs = []
     jobs_results = results["jobs_results"]
@@ -28,25 +36,27 @@ def google_jobs_api(keyword: str, location: str, df: pd.DataFrame, max_posts: in
     for job in jobs_results:
         if count == max_posts:
             break
-        job_title, company_name, job_location, job_link, job_description  = job["title"], job["company_name"], job["location"], job["related_links"][0]["link"], job["description"]
+        job_title, company_name, job_location, job_link, job_description  = job["title"], job["company_name"], job["location"], job["share_link"], job["description"]
         
         try:
             position_type = job["detected_extensions"]["schedule_type"]
         except KeyError:
-            position_type = "Not Provided"
+            position_type = "N/A"
             
         try:
             job_pay = job["detected_extensions"]["salary"]
         except KeyError:
-            job_pay = "Not Provided"
+            job_pay = "N/A"
             
         array_item = f"{job_title}{job_location}{company_name}"
         print(f"Title: {job_title}\nCompany: {company_name}\nLocation: {job_location}\n")
-        count += 1
         if array_item not in added_jobs:
             added_jobs.append(array_item)
-            new_row = pd.DataFrame([{"job_title": job_title, "position_type": position_type, "company_name": company_name, "location": job_location, "pay": job_pay, "apply_link": job_link, "role_desc": job_description, "source": "Indeed"}])
+            new_row = pd.DataFrame([{"job_title": job_title, "position_type": position_type, "company_name": company_name, "location": job_location, "pay": job_pay, "apply_link": job_link, "role_desc": job_description, "source": "Google Jobs"}])
             df = pd.concat([df, new_row], ignore_index=True)
+            count += 1
+
+    return df
             
 def scrape_indeed(keyword: str, location: str, distance: int, is_remote: bool, df: pd.DataFrame, page: Page, max_posts: int):
     keyword = keyword.replace(" ", "+")
@@ -90,12 +100,12 @@ def scrape_indeed(keyword: str, location: str, distance: int, is_remote: bool, d
                 try:
                     job_pay = page.query_selector('div#salaryInfoAndJobType span.css-19j1a75.eu4oa1w0').inner_text().strip()
                 except AttributeError:
-                    job_pay = "None specified"
+                    job_pay = "N/A"
                     
                 try:
                     position_type = page.query_selector('span.css-k5flys.eu4oa1w0').inner_text().strip()[2:]
                 except AttributeError:
-                    position_type = "None specified"
+                    position_type = "N/A"
                          
                 print(f"Title: {job_title}\nCompany: {company_name}\nLocation: {job_location}\nCount: {count}\n") #\nPay: {job_pay}\nLink: {job_link}\nDescription: {job_description}")
                 count += 1
@@ -121,8 +131,8 @@ def scrape_indeed(keyword: str, location: str, distance: int, is_remote: bool, d
     return df
 
 def scrape_linkedin(keyword: str, location: str, distance: int, is_remote: bool, df: pd.DataFrame, page: Page, max_posts: int):
-    keyword = keyword.replace(" ", "%2B")
-    location = location.replace(",", "%2C").replace(" ", "%2B")
+    keyword = keyword.replace(" ", "%20")
+    location = location.replace(",", "%2C").replace(" ", "%20")
     added_jobs = []
     
     if is_remote:
@@ -135,11 +145,17 @@ def scrape_linkedin(keyword: str, location: str, distance: int, is_remote: bool,
     else:
         linkedin_url = f"https://www.linkedin.com/jobs/search?keywords={keyword}&location={location}&distance={distance}&position=1&pageNum=0"
 
-    page.goto(linkedin_url)
+    num_jobs = []
+    while len(num_jobs) == 0:
+        page.goto(linkedin_url)
+        try:
+            page.wait_for_selector("ul.jobs-search__results-list li", timeout=1500)
+            num_jobs = page.query_selector_all("ul.jobs-search__results-list li")
+        except TimeoutError:
+            continue
+
     print(linkedin_url)
-    #page.wait_for_selector("div.results-context-header")
     
-    num_jobs = page.query_selector_all("ul.jobs-search__results-list li")
     count = 0
     for current_job in num_jobs:
         if count == max_posts:
@@ -158,9 +174,9 @@ def scrape_linkedin(keyword: str, location: str, distance: int, is_remote: bool,
             company_name = page.query_selector('body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > section > div > div.top-card-layout__entity-info-container.flex.flex-wrap.papabear\\:flex-nowrap > div > h4 > div:nth-child(1) > span:nth-child(1) > a').inner_text().strip() 
                 
             try:
-                job_link = page.query_selector('[data-tracking-control-name="public_jobs_apply-link-onsite"]').inner_html()[5:-4]
+                job_link = page.query_selector('a.topcard__link').get_attribute("href")
             except AttributeError:
-                job_link = page.query_selector('[data-tracking-control-name="public_jobs_apply-link-offsite_sign-up-modal"]').inner_html()[5:-4]
+                job_link = "N/A"
             
             show_more_btn = page.query_selector("body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > div > section > button.show-more-less-html__button.show-more-less-button.show-more-less-html__button--more.ml-0\\.5")
             show_more_btn.click()
@@ -169,15 +185,15 @@ def scrape_linkedin(keyword: str, location: str, distance: int, is_remote: bool,
             try:
                 job_pay = page.query_selector('body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.compensation.compensation--above-description.compensation--jserp > div > div > div').inner_text().strip()
             except AttributeError:
-                job_pay = "None specified"
+                job_pay = "N/A"
                 
             try:
                 position_type = page.query_selector('body > div.base-serp-page > div > section > div.details-pane__content.details-pane__content--show > div > section.core-section-container.my-3.description > div > ul > li:nth-child(2) > span').inner_text().strip()
             except AttributeError:
-                position_type = "None specified"
+                position_type = "N/A"
                         
             count += 1
-            print(f"Title: {job_title}\nCompany: {company_name}\nLocation: {job_location}\nCount: {count}\n") #\nPay: {job_pay}\nLink: {job_link}\nDescription: {job_description}")
+            print(f"Title: {job_title}\nCompany: {company_name}\nLocation: {job_location}\nCount: {count}\nLink: {job_link}") #\nPay: {job_pay}\nLink: {job_link}\nDescription: {job_description}")
         except (AttributeError, TimeoutError) as e:
             print(e)
             continue
@@ -185,7 +201,7 @@ def scrape_linkedin(keyword: str, location: str, distance: int, is_remote: bool,
         array_item = f"{job_title}{job_location}{company_name}"
         if array_item not in added_jobs:
             added_jobs.append(array_item)
-            new_row = pd.DataFrame([{"job_title": job_title, "position_type": position_type, "company_name": company_name, "location": job_location, "pay": job_pay, "apply_link": job_link, "role_desc": job_description, "source": "Indeed"}])
+            new_row = pd.DataFrame([{"job_title": job_title, "position_type": position_type, "company_name": company_name, "location": job_location, "pay": job_pay, "apply_link": job_link, "role_desc": job_description, "source": "LinkedIn"}])
             df = pd.concat([df, new_row], ignore_index=True)
 
     return df
@@ -196,7 +212,10 @@ def scrape_zip_recruiter(keyword: str, location: str, distance: int, is_remote: 
     added_jobs = []
     total_scraped = 0
     
-    zip_recruiter_link = f"https://www.ziprecruiter.com/jobs-search?search={keyword}&location={location}"
+    zip_recruiter_link = f"https://www.ziprecruiter.com/jobs-search?search={keyword}&location={location}&radius={distance}"
+    if is_remote:
+        zip_recruiter_link += "&refine_by_location_type=only_remote"
+
     print(zip_recruiter_link)
     page.goto(zip_recruiter_link)
     page.wait_for_selector("#react-job-results-root > div > div.relative.flex.w-full.flex-col.h-full")
@@ -233,12 +252,16 @@ def scrape_zip_recruiter(keyword: str, location: str, distance: int, is_remote: 
                 if container:
                     p_elements = container.query_selector_all('p.text-black.normal-case.text-body-md')
 
-                    job_pay = "none specified"
-                    position_type = "Unknown"
+                    job_pay = "N/A"
+                    position_type = "N/A"
 
                     for elem in p_elements:
                         elem_text = elem.inner_text()
-                        
+                        if '$' in elem_text or any(char.isdigit() for char in elem_text):
+                            job_pay = elem_text
+                        else:
+                            position_type = elem_text
+                            
                     if len(p_elements) == 1:
                         position_type = p_elements[0].inner_text()
                     elif len(p_elements) == 2:
@@ -290,8 +313,8 @@ def main():
         is_remote = False
         max_posts = 60
         
-        #df = google_jobs_api(keyword = keyword, location = location, df = df)
-        #df = scrape_linkedin(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
+        #df = google_jobs_api(keyword = keyword, location = location, is_remote=is_remote, distance=distance, max_posts = max_posts, df = df)
+        df = scrape_linkedin(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
         #df = scrape_indeed(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
         #df = scrape_zip_recruiter(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
         df.to_csv('output.csv', index=True)

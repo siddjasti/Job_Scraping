@@ -14,7 +14,7 @@ def index():
         location = request.form['location']
         distance = int(request.form['distance'])
         is_remote = 'is_remote' in request.form
-        max_posts = 4
+        max_posts = 10
         
         with sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
@@ -26,8 +26,8 @@ def index():
             columns = ["job_title", "position_type", "company_name", "location", "pay", "apply_link", "role_desc", "source"]
             df = pd.DataFrame(columns=columns)
             
-            #df = google_jobs_api(keyword=keyword, location=location, df=df, max_posts = max_posts)
-            #df = scrape_linkedin(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
+            df = google_jobs_api(keyword=keyword, location=location, distance = distance, is_remote = is_remote, df=df, max_posts = max_posts)
+            df = scrape_linkedin(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
             df = scrape_indeed(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
             df = scrape_zip_recruiter(keyword = keyword, location = location, distance = distance, is_remote = is_remote, df = df, page = page, max_posts = max_posts)
         
