@@ -47,4 +47,5 @@ This HTML template serves as the front-end of the application. It provides a for
 Contains the scraping logic using Playwright. This script includes functions to scrape job listings from specific platforms:
 - `scrape_linkedin`: Scrapes jobs from LinkedIn based on provided keywords, location, and filters.
 - `scrape_indeed`: Fetches job postings from Indeed with similar filtering options.
-- `google_jobs_api`: A commented-out function intended for future use with Google's Job API to expand the scraping sources.
+- `google_jobs_api`: A function that uses Google's Job API to expand the scraping sources.
+- `scrape_zip_recruiter`: Scrapes job postings from Zip Recruiter.
