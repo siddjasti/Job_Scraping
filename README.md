@@ -44,6 +44,17 @@ This HTML template serves as the front-end of the application. It provides a for
 
 ### `scraper.py`
 
+## Website Screenshots
+### Input Form:
+![Input Form Image](./site_screenshots/input_form_image.png)
+
+### Scraped Job Posts Output Table:
+![Data Table Image](./site_screenshots/scraped_date_table_image.png)
+
+### Job Description Box:
+![Description Box Image](./site_screenshots/description_box_image.png)
+
+
 Contains the scraping logic using Playwright. This script includes functions to scrape job listings from specific platforms:
 - `scrape_linkedin`: Scrapes jobs from LinkedIn based on provided keywords, location, and filters.
 - `scrape_indeed`: Fetches job postings from Indeed with similar filtering options.
