@@ -17,7 +17,7 @@ def google_jobs_api(keyword: str, location: str, distance: int, is_remote: bool,
     keyword = keyword.replace(" ", "+")
     location = location.replace(",", "%2C").replace(" ", "+")
     params = {
-        "api_key": "SECRET_KEY"
+        "api_key": "cea5964eec520c394a041039240d86db7c25f2f952f657f3c8e8ac8220791a02"
     }
 
     url = f"https://serpapi.com/search.json?engine=google_jobs&q={keyword}+{location}&hl=en"

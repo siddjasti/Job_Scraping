@@ -156,57 +156,57 @@ label:hover {
 }
 
 .description-button {
-    background-color: #983b2e; /* Background color */
-    color: #e2e2e2; /* Text color */
-    padding: 10px 20px; /* Padding around the text */
-    border: none; /* Remove default border */
-    border-radius: 25px; /* Rounded corners */
-    cursor: pointer; /* Pointer cursor on hover */
-    font-size: 16px; /* Font size */
-    font-weight: 600; /* Font weight for a bold look */
-    transition: background-color 0.3s, transform 0.3s; /* Smooth transitions */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    background-image: linear-gradient(135deg, #983b2e, #b24a3f); /* Gradient background */
+    background-color: #983b2e; 
+    color: #e2e2e2; 
+    padding: 10px 20px; 
+    border: none;
+    border-radius: 25px; 
+    cursor: pointer; 
+    font-size: 16px; 
+    font-weight: 600; 
+    transition: background-color 0.3s, transform 0.3s; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    background-image: linear-gradient(135deg, #983b2e, #b24a3f); 
 }
 
 .description-button:hover {
-    background-color: #692820; /* Background color on hover */
-    transform: translateY(-2px); /* Slight lift on hover */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2); /* Increase shadow on hover */
+    background-color: #692820;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.2);
 }
 
 .description-button:active {
-    transform: translateY(0); /* Reset lift on click */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Lighter shadow on click */
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
 }
 
 table {
-    width: 100%; /* Make sure the table takes up the full container width */
-    border-collapse: collapse; /* Remove spacing between table cells */
-    text-align: center; /* Horizontally center the content */
+    width: 100%; 
+    border-collapse: collapse;
+    text-align: center;
 }
 
 th, td {
-    padding: 5px; /* Add padding to the cells */
-    text-align: center; /* Horizontally center the text in each cell */
-    vertical-align: middle; /* Vertically center the text in each cell */
+    padding: 5px; 
+    text-align: center;
+    vertical-align: middle;
 }
 
 th {
-    background-color: #323232; /* Header background */
-    color: #e2e2e2; /* Header text color */
-    font-weight: bold; /* Bold headers */
-    text-transform: uppercase; /* Uppercase headers */
+    background-color: #323232;
+    color: #e2e2e2; 
+    font-weight: bold; 
+    text-transform: uppercase; 
 }
 
 td {
-    color: #e2e2e2; /* Table data text color */
+    color: #e2e2e2; 
 }
 
 th, td {
-    border-bottom: 1px solid #474646; /* Border between rows */
+    border-bottom: 1px solid #474646; 
 }
 
 table, th, td {
-    border: 1px solid #474646; /* Add a border to the entire table */
+    border: 1px solid #474646; 
 }

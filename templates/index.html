@@ -9,8 +9,8 @@
     <script>
         $(document).ready(function() {
             $(".description-button").click(function() {
-                var desc = $(this).data("desc").replace(/\\n/g, '<br>'); // Replace \n with <br>
-                $("#description-modal .modal-body").html(desc); // Use .html() to render the breaks as HTML
+                var desc = $(this).data("desc").replace(/\\n/g, '<br>'); 
+                $("#description-modal .modal-body").html(desc); 
                 $("#description-modal").css("display", "block"); 
             });
 
